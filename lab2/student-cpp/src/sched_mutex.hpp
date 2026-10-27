@@ -12,15 +12,18 @@ namespace sched {
 class sched_mutex {
 public:
     // Создаётся в setup() тестовой программы; зарегистрируйте лок в планировщике s.
-    sched_mutex(Scheduler& s, std::string name) : name(std::move(name)) { (void)s; }
+    sched_mutex(Scheduler& s, std::string name) : name(std::move(name)) { id_ = s.registerMutex(this->name); }
     sched_mutex(const sched_mutex&) = delete;
 
     // Пауза; если лок занят — ждать, не участвуя в выборе; затем стать владельцем.
-    void lock() { throw std::logic_error("TODO этап 2: sched_mutex::lock"); }
+    void lock() { Scheduler::current().mutexLock(id_); }
     // Пауза; освободить лок, ждавшие потоки снова могут быть выбраны.
-    void unlock() { throw std::logic_error("TODO этап 2: sched_mutex::unlock"); }
+    void unlock() { Scheduler::current().mutexUnlock(id_); }
 
     const std::string name;
+
+private:
+    int id_ = -1;
 };
 
 // RAII: lock сейчас, unlock на закрывающей скобке. Выдан готовым.
